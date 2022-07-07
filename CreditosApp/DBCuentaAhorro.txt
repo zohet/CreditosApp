@@ -1,0 +1,158 @@
+﻿Scaffold-DbContext "Server=localhost;Database=CuentasAhorro;Integrated Security=True;" Microsoft.EntityFrameworkCore.SqlServer -UseDatabaseNames -NoPluralize -OutputDir Data -Context DBContextCuentasAhorro -Force
+
+if (!optionsBuilder.IsConfigured)
+            {
+                string conexion = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["dsCuentasAhorro"];
+                optionsBuilder.UseSqlServer(conexion);
+            }
+
+Creación de la BD y tablas
+
+USE [master]
+GO
+/****** Object:  Database [CuentasAhorro]    Script Date: 07/07/2022 03:31:55 p. m. ******/
+CREATE DATABASE [CuentasAhorro];
+GO
+ALTER DATABASE [CuentasAhorro] SET COMPATIBILITY_LEVEL = 150
+GO
+IF (1 = FULLTEXTSERVICEPROPERTY('IsFullTextInstalled'))
+begin
+EXEC [CuentasAhorro].[dbo].[sp_fulltext_database] @action = 'enable'
+end
+GO
+ALTER DATABASE [CuentasAhorro] SET ANSI_NULL_DEFAULT OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET ANSI_NULLS OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET ANSI_PADDING OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET ANSI_WARNINGS OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET ARITHABORT OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET AUTO_CLOSE OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET AUTO_SHRINK OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET AUTO_UPDATE_STATISTICS ON 
+GO
+ALTER DATABASE [CuentasAhorro] SET CURSOR_CLOSE_ON_COMMIT OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET CURSOR_DEFAULT  GLOBAL 
+GO
+ALTER DATABASE [CuentasAhorro] SET CONCAT_NULL_YIELDS_NULL OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET NUMERIC_ROUNDABORT OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET QUOTED_IDENTIFIER OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET RECURSIVE_TRIGGERS OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET  DISABLE_BROKER 
+GO
+ALTER DATABASE [CuentasAhorro] SET AUTO_UPDATE_STATISTICS_ASYNC OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET DATE_CORRELATION_OPTIMIZATION OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET TRUSTWORTHY OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET ALLOW_SNAPSHOT_ISOLATION OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET PARAMETERIZATION SIMPLE 
+GO
+ALTER DATABASE [CuentasAhorro] SET READ_COMMITTED_SNAPSHOT OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET HONOR_BROKER_PRIORITY OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET RECOVERY FULL 
+GO
+ALTER DATABASE [CuentasAhorro] SET  MULTI_USER 
+GO
+ALTER DATABASE [CuentasAhorro] SET PAGE_VERIFY CHECKSUM  
+GO
+ALTER DATABASE [CuentasAhorro] SET DB_CHAINING OFF 
+GO
+ALTER DATABASE [CuentasAhorro] SET FILESTREAM( NON_TRANSACTED_ACCESS = OFF ) 
+GO
+ALTER DATABASE [CuentasAhorro] SET TARGET_RECOVERY_TIME = 60 SECONDS 
+GO
+ALTER DATABASE [CuentasAhorro] SET DELAYED_DURABILITY = DISABLED 
+GO
+EXEC sys.sp_db_vardecimal_storage_format N'CuentasAhorro', N'ON'
+GO
+ALTER DATABASE [CuentasAhorro] SET QUERY_STORE = OFF
+GO
+USE [CuentasAhorro]
+GO
+/****** Object:  Table [dbo].[Clientes]    Script Date: 07/07/2022 03:31:56 p. m. ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Clientes](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Nombre] [varchar](100) NOT NULL,
+	[ApellidoPaterno] [varchar](100) NOT NULL,
+	[ApellidoMaterno] [varchar](100) NOT NULL,
+	[Email] [varchar](100) NOT NULL,
+	[Telefono] [varchar](20) NOT NULL,
+	[Identificador] [varchar](100) NULL,
+	[FechaCreacion] [datetime] NOT NULL,
+	[FechaActualizacion] [datetime] NULL,
+	[EstatusCliente] [bit] NOT NULL,
+ CONSTRAINT [PK_Clientes] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CuentasDeAhorro]    Script Date: 07/07/2022 03:31:56 p. m. ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CuentasDeAhorro](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[NumeroCuenta] [varchar](100) NULL,
+	[Saldo] [float] NOT NULL,
+	[IdCliente] [int] NOT NULL,
+	[FechaCreacion] [datetime] NOT NULL,
+	[FechaActualizacion] [datetime] NULL,
+	[EstatusCuenta] [bit] NOT NULL,
+ CONSTRAINT [PK_CuentasDeAhorro] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Transacciones]    Script Date: 07/07/2022 03:31:56 p. m. ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Transacciones](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Tipo] [bit] NOT NULL,
+	[Monto] [float] NOT NULL,
+	[FechaCreacion] [datetime] NOT NULL,
+	[IdCuentaDeAhorro] [int] NOT NULL,
+ CONSTRAINT [PK_Transacciones] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[CuentasDeAhorro]  WITH CHECK ADD  CONSTRAINT [FK_CuentasDeAhorro_Clientes] FOREIGN KEY([IdCliente])
+REFERENCES [dbo].[Clientes] ([Id])
+GO
+ALTER TABLE [dbo].[CuentasDeAhorro] CHECK CONSTRAINT [FK_CuentasDeAhorro_Clientes]
+GO
+ALTER TABLE [dbo].[Transacciones]  WITH CHECK ADD  CONSTRAINT [FK_Transacciones_CuentasDeAhorro] FOREIGN KEY([IdCuentaDeAhorro])
+REFERENCES [dbo].[CuentasDeAhorro] ([Id])
+GO
+ALTER TABLE [dbo].[Transacciones] CHECK CONSTRAINT [FK_Transacciones_CuentasDeAhorro]
+GO
+USE [master]
+GO
+ALTER DATABASE [CuentasAhorro] SET  READ_WRITE 
+GO
