@@ -3,9 +3,11 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - CuentasAhorroApp</title>
+    <title>@ViewData["Title"] - AppAhorro</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/lib/toastr/toastr.min.css" />
+     <link rel="stylesheet" href="~/lib/sweetalert/sweetalert2.min.css" />
 </head>
 <body>
     <header>
@@ -19,10 +21,7 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Clientes" asp-action="Index">Clientes</a>
                         </li>
                     </ul>
                 </div>
@@ -31,18 +30,36 @@
     </header>
     <div class="container">
         <main role="main" class="pb-3">
+            <div class="overlay" id="generalLoader" style="display: none;">
+                <div class="loader" style="display: none;"></div>
+            </div>
             @RenderBody()
         </main>
     </div>
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2022 - CuentasAhorroApp - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2022 - App Cuentas de Ahorro - <a href="mailto:zohet.d@gmail.com">zohet.d@gmail.com</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://kit.fontawesome.com/5ed61b48a6.js" crossorigin="anonymous"></script>
+    <script src="~/lib/toastr/toastr.min.js"></script>
+    <script src="~/lib/sweetalert/sweetalert2.all.min.js"></script>
+    <script>
+        var urlGeneral = '@Url.Content("~/")';
+        function cleanModals() {
+            $(".cleanText").each(function() {
+                $(this).val("");
+            });
+            $(".cleanNumber").each(function() {
+                $(this).val(0);
+            });
+        }
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

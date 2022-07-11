@@ -1,8 +1,21 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Bienvenido a la App de Cuentas de ahorro</h1>
+    <p>Para más información acerca del codigo <a href="https://github.com/zohet"> accede a este link</a>.</p>
+    <p>Esta aplicación fue creada con .Net Core / SQL Server / Bootstrap</p>
+    <p>Para comenzar accede a la sección de clientes, que se encuentra en la barra superior.</p>
+    <p>o a través de este <a href="~/clientes">link</a></p>
+    
 </div>
+
+@section scripts{
+    <script>
+function onClick() {
+            console.log("onClick!");
+    toastr.success('Have fun storming the castle!', 'Miracle Max Says');
+}
+    </script>
+}

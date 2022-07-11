@@ -1,5 +1,73 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Historial";
 }
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="~/clientes">Clientes</a></li>
+        <li class="breadcrumb-item"><a href="~/CuentasAhorro?IdCliente=@ViewBag.IdUsuario">Cuentas de ahorro - @ViewBag.UsuarioNombre</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Historial de transacciones - @ViewBag.NombreCuenta</li>
+    </ol>
+</nav>
+<div class="text-center">
+    <h1 class="display-4">Historial de transacciones</h1>
+</div>
+<input type="hidden" id="TraIdCuenta" value="@ViewBag.IdCuenta" />
+<input type="hidden" id="TraIdUsuario" value="@ViewBag.IdUsuario" />
+<div class="row mb-2">
+    <div class="col-12 col-sm-12 col-md-2 col-lg-1 mb-2">
+        <button type="button" class="btn btn-primary btn-icon" id="btnShowFilters"
+                data-toggle="tooltip" data-placement="top" title="Buscar cuenta">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+    <div id="divShowFilters" class="col-12 col-sm-12 col-md-10 col-lg-11 item-hide-page">
+        <div class="row">
+            <div class="col-lg-11 col-md-10 col-sm-10 col-10">
+                <div class="form-group">
+                    <input type="text" class="form-control cleanText" placeholder="Buscar por tipo de transacción, monto o fecha (dd/mm/yyyy)" id="SearchData">
+                </div>
+            </div>
+            <div class="col-lg-1 col-md-2 col-sm-2 col-2 mb-2">
+                <button id="btnApplyFilters" type="button" class="btn btn-info btn-icon"
+                        data-toggle="tooltip" data-placement="top" title="Filtrar transacciones">
+                    <i class="fas fa-sort-amount-down"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-12" id="gridTransacciones"></div>
+</div>
+<!--/Transacciones -->
+@section scripts{
+    <script>
+        var filters = false;
+        $(document).ready(function() {
+            cargarTransacciones();
+        });
+        function cargarTransacciones() {
+            StartLoading();
+            var SearchData = $("#SearchData").val();
+            var IdCuenta = $("#TraIdCuenta").val();
+            var IdUsuario = $("#TraIdUsuario").val();
+            $.ajaxSetup({ cache: false })
+            $('#gridTransacciones').load(urlGeneral + 'Transacciones/GetAllTransacciones?Filter=' + filters + '&SearchData=' + encodeURIComponent(SearchData) + '&IdCuenta=' + IdCuenta + '&IdUsuario=' + IdUsuario, function(response, status, xhr) {
+                StopLoading();
+            });
+        }
+        $("#btnShowFilters").click(function() {
+            if (filters) {
+                filters = false;
+                $("#divShowFilters").addClass("item-hide-page");
+                cargarTransacciones();
+            } else {
+                cleanModals();
+                filters = true;
+                $("#divShowFilters").removeClass("item-hide-page");
+            }
+        });
+
+        $("#btnApplyFilters").click(function(e) {
+            cargarTransacciones();
+        });
+    </script>
+                }

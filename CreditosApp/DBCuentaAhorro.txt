@@ -114,6 +114,7 @@ GO
 CREATE TABLE [dbo].[CuentasDeAhorro](
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[NumeroCuenta] [varchar](100) NULL,
+	[NombreCuenta] [varchar](100) NOT NULL,
 	[Saldo] [float] NOT NULL,
 	[IdCliente] [int] NOT NULL,
 	[FechaCreacion] [datetime] NOT NULL,

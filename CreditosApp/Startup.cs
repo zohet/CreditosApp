@@ -1,6 +1,9 @@
+using CuentasAhorroApp.Data;
+using CuentasAhorroApp.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -24,6 +27,8 @@ namespace CreditosApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddDbContext<DBContextCuentasAhorro>(options => options.UseSqlServer(Configuration.GetConnectionString("dsCuentasAhorro")));
+            services.AddScoped<IControlDatosInterface, ControlDatosService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

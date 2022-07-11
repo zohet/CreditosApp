@@ -1,5 +1,201 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Cuentas de ahorro";
+}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="~/clientes">Clientes</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Cuentas de ahorro - @ViewBag.UsuarioNombre</li>
+    </ol>
+</nav>
+<div class="text-center">
+    <h1 class="display-4">Cuentas de ahorro</h1>
+</div>
+<div class="row mb-2">
+    <div class="col-8 col-sm-8 col-md-8 col-lg-1 mb-2">
+        <button type="button" class="btn btn-success btn-icon" id="btnAddCuenta" data-toggle="tooltip" data-placement="top" title="Agregar cuenta de ahorro">
+            <i class="fas fa-wallet"></i>
+        </button>
+    </div>
+    <div class="col-4 col-sm-4 col-md-4 col-lg-1 mb-2">
+        <button type="button" class="btn btn-primary btn-icon" id="btnShowFilters"
+                data-toggle="tooltip" data-placement="top" title="Buscar cuenta">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+    <div id="divShowFilters" class="col-12 col-sm-12 col-md-12 col-lg-10 item-hide-page">
+        <div class="row">
+            <div class="col-lg-11 col-md-10 col-sm-10 col-10">
+                <div class="form-group">
+                    <input type="text" class="form-control cleanText" placeholder="Buscar por nombre, saldo o identificador" id="SearchData">
+                </div>
+            </div>
+            <div class="col-lg-1 col-md-2 col-sm-2 col-2 mb-2">
+                <button id="btnApplyFilters" type="button" class="btn btn-info btn-icon"
+                        data-toggle="tooltip" data-placement="top" title="Filtrar cuentas">
+                    <i class="fas fa-sort-amount-down"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-12" id="gridCuentasAhorro"></div>
+</div>
+<div class="modal fade" id="modalAddCuentasAhorro" data-backdrop="static" data-keyboard="false" tabindex="-2" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titleLabelAddCliente">Agregar cuenta de ahorro</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <form id="formCuentaAhorro" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <input type="hidden" name="Id" id="CtaId" class="cleanNumber" value="0" />
+                        <input type="hidden" name="IdCliente" id="CtaIdCliente" value="@ViewBag.IdCliente" />
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="message-text" class="form-control-label requerido">Nombre de la cuenta de ahorro:</label>
+                                <input type="text" class="form-control cleanText" name="NombreCuenta" id="CtaNombreCuenta" maxlength="80" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnSaveCuentaAhorro" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalAddTransaccion" data-backdrop="static" data-keyboard="false" tabindex="-2" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titleLabelAddCliente">Agregar transaccion</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <form id="formTransaccion" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <input type="hidden" name="Id" id="TraId" value="0" />
+                        <input type="hidden" name="IdCuentaDeAhorro" id="TraIdCuentaDeAhorro" class="cleanNumber" value="0" />
+                        <div class="col-12 col-md-6 col-lg-6">
+                            <div class="form-group">
+                                <label for="message-text" class="form-control-label requerido">Monto:</label>
+                                <input type="number" class="form-control cleanNumber" name="Monto" id="TraMonto" min="1" required>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-6">
+                            <div class="form-group">
+                                <label for="message-text" class="form-control-label requerido">Tipo de transacción:</label>
+                                <select class="form-control cleanText" name="Tipo" required>
+                                    <option value="">
+                                        Selecciona una opción
+                                    </option>
+                                    <option value="true">Deposito </option>
+                                    <option value="false">Retiro </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnSaveTransaccion" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+        var filters = false;
+        $(document).ready(function() {
+            cargarCuentasAhorro();
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        function cargarCuentasAhorro() {
+            StartLoading();
+            var SearchData = $("#SearchData").val();
+            var IdCliente = $("#CtaIdCliente").val();
+            $.ajaxSetup({ cache: false })
+            $('#gridCuentasAhorro').load(urlGeneral + 'CuentasAhorro/GetAllCuentas?Filter=' + filters + '&SearchData=' + encodeURIComponent(SearchData) + '&IdCliente=' + IdCliente, function(response, status, xhr) {
+                StopLoading();
+            });
+        }
+
+        $("#btnAddCuenta").click(function(e) {
+            e.preventDefault();
+            cleanModals();
+            $("#titleLabelAddCuenta").text("Agregar cuenta de ahorro");
+            $("#modalAddCuentasAhorro").modal("show");
+        });
+
+        $("#btnSaveCuentaAhorro").click(function(e) {
+            e.preventDefault();
+            StartLoading();
+            if (!$("#formCuentaAhorro").valid()) {
+                StopLoading();
+                toastr.warning('¡Campos requeridos!', 'Favor de llenar los campos requeridos (*).');
+                return;
+            }
+
+            var formData = new FormData($("#formCuentaAhorro")[0]);
+            system.save(urlGeneral + "CuentasAhorro/SaveOrUpdateCuentaAhorro", formData, function(response) {
+                if (response.isSuccess == true) {
+                    StopLoading();
+                    toastr.success(response.message);
+                    cargarCuentasAhorro();
+                    $("#modalAddCuentasAhorro").modal("hide");
+
+                } else {
+                    StopLoading();
+                    toastr.error(response.message);
+                }
+            });
+        });
+
+        $("#btnShowFilters").click(function() {
+            if (filters) {
+                filters = false;
+                $("#divShowFilters").addClass("item-hide-page");
+                cargarCuentasAhorro();
+            } else {
+                cleanModals();
+                filters = true;
+                $("#divShowFilters").removeClass("item-hide-page");
+            }
+        });
+
+        $("#btnApplyFilters").click(function(e) {
+            cargarCuentasAhorro();
+        });
+
+        $("#btnSaveTransaccion").click(function(e) {
+            e.preventDefault();
+            StartLoading();
+            if (!$("#formTransaccion").valid()) {
+                StopLoading();
+                toastr.warning('¡Campos requeridos!', 'Favor de llenar los campos requeridos (*).');
+                return;
+            }
+
+            var formData = new FormData($("#formTransaccion")[0]);
+            system.save(urlGeneral + "Transacciones/SaveOrUpdateTransacciones", formData, function(response) {
+                if (response.isSuccess == true) {
+                    StopLoading();
+                    toastr.success(response.message);
+                    cargarCuentasAhorro();
+                    $("#modalAddTransaccion").modal("hide");
+
+                } else {
+                    StopLoading();
+                    toastr.error(response.message);
+                }
+            });
+        });
+    </script>
 }

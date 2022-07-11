@@ -1,5 +1,220 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@model IEnumerable<CuentasDeAhorro>
+@using X.PagedList.Mvc.Core;
+@using X.PagedList;
+@if (Model.Count() == 0)
+{
+    <div class="col-md-12 row mt-2 mb-2">
+        <label>
+            Sin registros
+        </label>
+    </div>
 }
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        <h4>
+                            <span class="text-muted">
+                                Identificador
+                            </span>
+                        </h4>
+                    </th>
+                    <th title="Cuenta">
+                        <h4 style="cursor:pointer">
+                            <span class="text-muted">
+                                Cuenta
+                            </span>
+                        </h4>
+                    </th>
+
+                    <th title="Saldo">
+                        <h4 style="cursor:pointer">
+                            <span class="text-muted">
+                                Saldo
+                            </span>
+                        </h4>
+                    </th>
+                    <th title="Transacciones">
+                        <h4 style="cursor:pointer">
+                            <span class="text-muted">
+                                Transacciones
+                            </span>
+                        </h4>
+
+                    </th>
+                    <th title="Actualización">
+                        <h4 style="cursor:pointer">
+                            <span class="text-muted">
+                                Actualización
+                            </span>
+                        </h4>
+                    </th>
+                    <th>
+                        <h4>
+                            <span class="text-muted">
+                                Herramientas
+                            </span>
+                        </h4>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    foreach (var item in Model)
+                    {
+                        string lastDateUpdate = item.FechaActualizacion.HasValue ? item.FechaActualizacion.Value.ToString("dd/MM/yyyy") : "";
+                            <tr>
+                                <td>
+                                    @item.NumeroCuenta
+                                </td>
+                                <td>
+                                    @item.NombreCuenta
+                                </td>
+                                <td>
+                                    @item.Saldo.ToString("C")
+                                </td>
+                                <td>
+                                    @item.TotalTransacciones
+                                </td>
+                                <td>
+                                    @lastDateUpdate
+                                </td>
+                                <td>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <button type="button" onclick="Editar('@item.Id')" class="btn btn-success btn-icon"
+                                            data-toggle="tooltip" data-placement="top" title="Editar cuenta">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button type="button" onclick="VerHistorial('@item.Id','@item.IdCliente')" class="btn btn-secondary btn-icon"
+                                            data-toggle="tooltip" data-placement="top" title="Ver historial transacciones">
+                                                <i class="fas fa-history"></i>
+                                            </button>
+                                            <button type="button" onclick="BajaCuenta('@item.Id')" class="btn btn-danger btn-icon"
+                                            data-toggle="tooltip" data-placement="top" title="Dar de baja cuenta">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                            <button type="button" onclick="AgregarTransaccion('@item.Id')" class="btn btn-primary btn-icon"
+                                            data-toggle="tooltip" data-placement="top" title="Agregar transacción">
+                                                <i class="fas fa-dollar"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="pagingBox">
+        Página @(ViewBag.PageCount < ViewBag.PageNumber ? 0 : ViewBag.PageNumber) de @ViewBag.PageCount | @ViewBag.TotalItemCount registros
+        <div id="PaginacionDiv">
+            @Html.PagedListPager((IPagedList)Model, page => Url.Action("GetAllCuentas", new { page = page }),
+        new X.PagedList.Mvc.Core.Common.PagedListRenderOptions
+        {
+        DisplayItemSliceAndTotal = false,
+        ContainerDivClasses = new[] { "navigation" },
+        LiElementClasses = new[] { "page-item" },
+        PageClasses = new[] { "page-link" },
+        })
+        </div>
+    </div>
+}
+
+<script>
+    $(document).ready(function() {
+        $(".pagination-container").addClass("m-datatable__pager m-datatable--paging-loaded clearfix");
+        $(".pagination-container ul").addClass("m-datatable__pager-nav");
+        $(".pagination-container ul li a").addClass("m-datatable__pager-link m-datatable__pager-link-number");
+        $(".pagination-container ul li.PagedList-skipToPrevious a").removeClass("m-datatable__pager-link m-datatable__pager-link-number");
+        $(".pagination-container ul li.active a").removeClass("m-datatable__pager-link m-datatable__pager-link-number");
+        $(".pagination-container ul li.PagedList-skipToPrevious a").addClass("m-datatable__pager-link m-datatable__pager-link--prev");
+        $(".pagination-container ul li.active a").addClass("m-datatable__pager-link m-datatable__pager-link-number m-datatable__pager-link--active");
+        $(".pagination-container ul li.PagedList-skipToNext a").removeClass("m-datatable__pager-link m-datatable__pager-link-number");
+        $(".pagination-container ul li.PagedList-skipToNext a").addClass("m-datatable__pager-link m-datatable__pager-link--next");
+
+        $("#PaginacionDiv").find("a.page-link").addClass("page-cuentas");
+        $('[data-toggle="tooltip"]').tooltip();
+
+    });
+
+    $("a.page-link").click(function(e) {
+        e.preventDefault();
+        if ($(this).hasClass("page-cuentas")) {
+            var href = $(this).attr('href');
+            var i = href.lastIndexOf('=');
+            var page = "";
+            if (i > -1) {
+                page = href.substring(i + 1, href.length);
+                if (page != "") {
+                    var SearchData = $("#SearchData").val();
+                    var IdCliente = $("#CtaIdCliente").val();
+                    
+                    StartLoading();
+                    $('#gridCuentasAhorro').load(urlGeneral + 'CuentasAhorro/GetAllCuentas?page=' + page + '&Filter=' + filters + '&SearchData=' + encodeURIComponent(SearchData) +'&IdCliente='+IdCliente, function(response, status, xhr) {
+                        StopLoading();
+                    });
+                }
+            }
+        }
+    });
+
+    function BajaCuenta(id) {
+        var formData = new FormData();
+        swal.fire({
+            title: '¿Confirma que desea dar de baja la cuenta?',
+            type: 'question',
+            showCancelButton: true,
+            cancelButtonText: 'No, cancelar',
+            confirmButtonText: 'Sí, continuar'
+        }).then(function(result) {
+            if (result.value) {
+                StartLoading();
+                formData.append("Id", id);
+                system.save(urlGeneral + "CuentasAhorro/BajaCuenta", formData, function(response) {
+                    if (response.isSuccess == true) {
+                        StopLoading();
+                        toastr.success(response.message);
+                        cargarCuentasAhorro();
+                    } else {
+                        StopLoading();
+                        toastr.error(response.message);
+                    }
+                });
+            }
+        });
+    }
+
+    function VerHistorial(IdCuenta,IdUsuario) {
+        window.location.href = urlGeneral + "Transacciones/Index?IdCuenta=" + IdCuenta + "&IdUsuario=" + IdUsuario;
+    }
+
+    function Editar(id) {
+        cleanModals();
+        StartLoading();
+        system.get(urlGeneral + 'CuentasAhorro/GetCuentaAhorro?Id=' + id, null, function(response) {
+            if (response.isSuccess == true) {
+                StopLoading();
+                console.log(response.result);
+                $("#titleLabelAddCliente").text("Editar cuenta de ahorro");
+                $("#CtaId").val(response.result.id);
+                $("#CtaNombreCuenta").val(response.result.nombreCuenta);
+                $("#modalAddCuentasAhorro").modal("show");
+            } else {
+                StopLoading();
+                toastr.error(response.message);
+            }
+        });
+    }
+    
+function AgregarTransaccion(id) {
+    cleanModals();
+    $("#TraIdCuentaDeAhorro").val(id);
+    $("#modalAddTransaccion").modal("show");
+}
+
+</script>

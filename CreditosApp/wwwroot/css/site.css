@@ -69,3 +69,77 @@ body {
   white-space: nowrap;
   line-height: 60px; /* Vertically center the text there */
 }
+
+.overlay {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: fixed;
+    z-index: 9999;
+    transition: all 1.5s;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    background-color: #d4d7e4;
+}
+
+.modal {
+    overflow: auto !important;
+}
+
+.loader,
+.loader:before,
+.loader:after {
+    border-radius: 50%;
+    width: 2.5em;
+    height: 2.5em;
+    animation: loader 1.5s infinite ease-in-out;
+}
+
+.loader {
+    color: #1d292e;
+    font-size: 11px;
+    position: relative;
+    animation-delay: -0.16s;
+}
+
+    .loader:before,
+    .loader:after {
+        content: '';
+        position: absolute;
+        top: 0;
+    }
+
+    .loader:before {
+        left: -3.5em;
+        animation-delay: -0.32s;
+    }
+
+    .loader:after {
+        left: 3.5em;
+    }
+
+@keyframes loader {
+    0%, 80%, 100% {
+        box-shadow: 0 2.5em 0 -1.3em;
+    }
+
+    40% {
+        box-shadow: 0 2.5em 0 0;
+    }
+}
+
+.item-hide-page {
+    display: none !important;
+}
+
+.requerido:after {
+    content: " *";
+    color: #ef5350;
+}
+
+.error {
+    color: #ef5350;
+    border-color: #ef5350 !important;
+}

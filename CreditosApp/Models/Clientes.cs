@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 #nullable disable
 
@@ -22,6 +23,10 @@ namespace CuentasAhorroApp.Models
         public DateTime FechaCreacion { get; set; }
         public DateTime? FechaActualizacion { get; set; }
         public bool EstatusCliente { get; set; }
+        [NotMapped]
+        public int TotalCuentasAhorro { get; set; }
+        [NotMapped]
+        public string NombreCompleto { get; set; }
 
         public virtual ICollection<CuentasDeAhorro> CuentasDeAhorro { get; set; }
     }

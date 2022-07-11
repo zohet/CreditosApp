@@ -1,5 +1,157 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Clientes";
+}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">Clientes</li>
+    </ol>
+</nav>
+<div class="text-center">
+    <h1 class="display-4">Clientes</h1>
+</div>
+<div class="row mb-2">
+    <div class="col-8 col-sm-8 col-md-8 col-lg-1 mb-2">
+        <button type="button" class="btn btn-success btn-icon" id="btnAddCliente" data-toggle="tooltip" data-placement="top" title="Agregar usuario"><i class="fa-solid fa-user-plus"></i></button>
+    </div>
+    <div class="col-4 col-sm-4 col-md-4 col-lg-1 mb-2">
+        <button type="button" class="btn btn-primary btn-icon" id="btnShowFilters"
+                data-toggle="tooltip" data-placement="top" title="Buscar usuario">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+    <div id="divShowFilters" class="col-12 col-sm-12 col-md-12 col-lg-10 item-hide-page">
+        <div class="row">
+            <div class="col-lg-11 col-md-10 col-sm-10 col-10">
+                <div class="form-group">
+                    <input type="text" class="form-control cleanText" placeholder="Buscar por nombre, correo, telefono o identificador" id="SearchData">
+                </div>
+            </div>
+            <div class="col-lg-1 col-md-2 col-sm-2 col-2 mb-2">
+                <button id="btnApplyFilters" type="button" class="btn btn-info btn-icon"
+                        data-toggle="tooltip" data-placement="top" title="Filtrar usuarios">
+                    <i class="fas fa-sort-amount-down"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="col-12" id="gridClientes"></div>
+</div>
+<div class="modal fade" id="modalAddCliente" data-backdrop="static" data-keyboard="false" tabindex="-2" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="titleLabelAddCliente">Agregar cliente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                </button>
+            </div>
+            <form id="formCliente" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="row">
+                        <input type="hidden" name="Id" id="CliId" class="cleanNumber" value="0" />
+                        <div class="col-sm-12 col-md-4 col-lg-4">
+                            <div class="form-group">
+                                <label for="message-text" class="form-control-label requerido">Nombre:</label>
+                                <input type="text" class="form-control cleanText" name="Nombre" id="CliNombre" maxlength="80" required>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-4 col-lg-4">
+                            <div class="form-group">
+                                <label for="message-text" class="form-control-label requerido">Apellido Paterno:</label>
+                                <input type="text" class="form-control cleanText" name="ApellidoPaterno" id="CliApellidoPaterno" maxlength="80" required>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-4 col-lg-4">
+                            <div class="form-group">
+                                <label for="message-text" class="form-control-label requerido">Apellido Materno:</label>
+                                <input type="text" class="form-control cleanText" name="ApellidoMaterno" id="CliApellidoMaterno" maxlength="80" required>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-6 col-lg-6">
+                            <div class="form-group">
+                                <label for="message-text" class="form-control-label requerido">Correo electronico:</label>
+                                <input type="email" class="form-control cleanText" name="Email" id="CliEmail" maxlength="80" required>
+                            </div>
+                        </div>
+                        <div class="col-sm-12 col-md-6 col-lg-6">
+                            <div class="form-group">
+                                <label for="message-text" class="form-control-label requerido">Telefono:</label>
+                                <input type="tel" class="form-control cleanText" name="Telefono" id="CliTelefono"
+                                       pattern="[0-9]{2} [0-9]{4}[ -][0-9]{4}" title="Telefono valido consiste en 2 digitos, un espacio, los primeros cuatro digitos del número, un espacio o guión medio (-), y los ultimos cuatro digitos del número" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btnSaveCliente" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script>
+        var filters = false;
+        $(document).ready(function() {
+            cargarClientes();
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+
+        function cargarClientes() {
+            StartLoading();
+            var SearchData = $("#SearchData").val();
+
+            $.ajaxSetup({ cache: false })
+            $('#gridClientes').load(urlGeneral + 'Clientes/GetAllClientes?Filter='+ filters + '&SearchData=' + encodeURIComponent(SearchData), function(response, status, xhr) {
+                StopLoading();
+            });
+        }
+        
+        $("#btnAddCliente").click(function(e) {
+            e.preventDefault();
+            cleanModals();
+            $("#titleLabelAddCliente").text("Agregar cliente");
+            $("#modalAddCliente").modal("show");
+        });
+
+        $("#btnSaveCliente").click(function(e) {
+            e.preventDefault();
+            StartLoading();
+            if (!$("#formCliente").valid()) {
+                StopLoading();
+                toastr.warning('¡Campos requeridos!', 'Favor de llenar los campos requeridos (*).');
+                return;
+            }
+
+            var formData = new FormData($("#formCliente")[0]);
+            system.save(urlGeneral + "Clientes/SaveOrUpdateCliente", formData, function(response) {
+                if (response.isSuccess == true) {
+                    StopLoading();
+                    toastr.success(response.message);
+                    cargarClientes();
+                    $("#modalAddCliente").modal("hide");
+
+                } else {
+                    StopLoading();
+                    toastr.error(response.message);
+                }
+            });
+        });
+
+        $("#btnShowFilters").click(function() {
+            if (filters) {
+                filters = false;
+                $("#divShowFilters").addClass("item-hide-page");
+                cargarClientes();
+            } else {
+                cleanModals();
+                filters = true;
+                $("#divShowFilters").removeClass("item-hide-page");
+            }
+        });
+        
+        $("#btnApplyFilters").click(function(e) {
+            cargarClientes();
+        });
+    </script>
 }
